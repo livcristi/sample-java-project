@@ -74,23 +74,23 @@ jobs:
             --input './src' \
             --language java \
             --analyser-args --metrics 'loc,cc,cloc' \
-            --visualiser-args --theme 'light' --output-dir '.visual'
+            --visualiser-args --theme 'light' --output-dir 'visual'
           set +x  # Disable command echo
           
           # Check if output directory was created
-          ls -la .visual || echo "Output directory not created"
+          ls -la visual || echo "Output directory not created"
           
           # If treemap output exists, show info about it
           if [ -d ".visual/treemap_output" ]; then
             echo "Treemap output directory found:"
-            ls -la .visual/treemap_output
+            ls -la visual/treemap_output
           fi
 
       - name: Upload visualization as artifact
         uses: actions/upload-artifact@v4
         with:
           name: feather-city-visualization
-          path: .visual
+          path: visual/treemap_output
 
       - name: Summary
         run: |
