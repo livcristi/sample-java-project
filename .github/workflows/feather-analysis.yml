@@ -73,7 +73,7 @@ jobs:
           feather-city \
             --input './src' \
             --language java \
-            --analyser-args --metrics 'loc,cc,iss,cloc' \
+            --analyser-args --metrics 'loc,cc,iss,cloc,wmc,nom,ce,ca,stat' \
             --visualiser-args --theme 'light' --output-dir 'visual'
           set +x  # Disable command echo
           
