@@ -1,0 +1,26 @@
+name: Java Analysis with Feather City
+on:
+  workflow_dispatch:  # Allow manual triggering
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**/*.java'  # Only run when Java files change
+
+permissions:
+  contents: write  # Permission to push to the repository
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Feather City Analysis
+        uses: livcristi/feather-city-action@v0.0.1-alpha
+        with:
+          input_dir: './src'
+          metrics: 'loc,cc,cloc'
+          theme: 'light'
+          output_dir: '.visual'
+          commit_results: 'true'
