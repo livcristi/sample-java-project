@@ -79,24 +79,29 @@ jobs:
           
           # Check if output directory was created
           ls -la .visual || echo "Output directory not created"
-
-      - name: Commit results to repo
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
           
-          # Check if there are changes to commit
-          if [ -d ".visual" ]; then
-            git add .visual
-            if git diff --staged --quiet; then
-              echo "No changes to commit"
-            else
-              git commit -m "Add visualization via Feather City"
-              git push
-              echo "Successfully committed and pushed visualization results"
-            fi
-          else
-            echo "Warning: .visual directory not found, nothing to commit"
+          # If treemap output exists, show info about it
+          if [ -d ".visual/treemap_output" ]; then
+            echo "Treemap output directory found:"
+            ls -la .visual/treemap_output
           fi
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Upload visualization as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: feather-city-visualization
+          path: .visual
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Summary
+        run: |
+          # Create a summary with links to the artifacts
+          echo "## Feather City Analysis Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Analysis completed successfully. You can view the results by downloading the 'feather-city-visualization' artifact." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "To view the visualization:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Download the artifact" >> $GITHUB_STEP_SUMMARY
+          echo "2. Extract the zip file" >> $GITHUB_STEP_SUMMARY
+          echo "3. Open `index.html` in your browser" >> $GITHUB_STEP_SUMMARY
