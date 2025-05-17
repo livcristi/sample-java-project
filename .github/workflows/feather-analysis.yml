@@ -32,18 +32,24 @@ jobs:
 
       - name: Install PMD
         run: |
-          curl -L https://github.com/pmd/pmd/releases/download/pmd_releases%2F6.55.0/pmd-bin-6.55.0.zip -o pmd.zip
-          unzip pmd.zip -d pmd
-          chmod +x ${{ github.workspace }}/pmd/pmd-bin-6.55.0/bin/run.sh
-          echo "PMD_HOME=${{ github.workspace }}/pmd/pmd-bin-6.55.0" >> $GITHUB_ENV
-          echo "${{ github.workspace }}/pmd/pmd-bin-6.55.0/bin" >> $GITHUB_PATH
-          echo "PMD installation path: ${{ github.workspace }}/pmd/pmd-bin-6.55.0"
-          ls -la ${{ github.workspace }}/pmd/pmd-bin-6.55.0/bin
+          # Download and extract PMD
+          wget https://github.com/pmd/pmd/releases/download/pmd_releases%2F7.13.0/pmd-dist-7.13.0-bin.zip -O pmd.zip
+          unzip pmd.zip
+          
+          # Make the PMD script executable
+          chmod +x ${{ github.workspace }}/pmd-bin-7.13.0/bin/pmd
+          
+          # Add PMD to PATH
+          echo "${{ github.workspace }}/pmd-bin-7.13.0/bin" >> $GITHUB_PATH
+          
+          # Verify installation
+          echo "PMD installation path: ${{ github.workspace }}/pmd-bin-7.13.0/bin"
+          ls -la ${{ github.workspace }}/pmd-bin-7.13.0/bin
 
       - name: Install Feather City
         run: |
           python -m pip install --upgrade pip
-          pip install "feather-city[java]==0.1.1b3" \
+          pip install "feather-city[java]==0.1.1b4" \
             --extra-index-url https://pypi.org/simple/ \
             -i https://test.pypi.org/simple/
           # Verify installation
@@ -53,23 +59,22 @@ jobs:
       - name: Debug Environment
         run: |
           echo "Runner OS: $RUNNER_OS"
-          echo "PMD_HOME: $PMD_HOME"
           echo "Python version: $(python --version)"
           echo "PATH: $PATH"
+          
+          # Verify PMD is available in the path
+          which pmd || echo "PMD command not found in PATH"
+          pmd --version || echo "Unable to run pmd --version"
 
       - name: Run Feather City CLI
         run: |
-          # Determine the correct PMD path based on OS
-          PMD_SCRIPT="$PMD_HOME/bin/$([ "$RUNNER_OS" == "Windows" ] && echo "pmd.bat" || echo "run.sh")"
-          echo "Using PMD script: $PMD_SCRIPT"
-          
           # Run feather-city with detailed output
           set -x  # Enable command echo for debugging
           feather-city \
             --input './src' \
             --language java \
-            --analyser-args --metrics 'loc,cc,cloc' --pmd-path "$PMD_SCRIPT" \
-            --output '.visual'
+            --analyser-args --metrics 'loc,cc,cloc' \
+            --visualiser-args --theme 'light' --output-dir '.visual'
           set +x  # Disable command echo
           
           # Check if output directory was created
