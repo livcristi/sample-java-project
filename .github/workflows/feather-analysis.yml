@@ -1,10 +1,7 @@
 name: Java Analysis with Feather City
 on:
   workflow_dispatch:  # Allow manual triggering
-  push:
-    branches: [ main ]
-    paths:
-      - 'src/**/*.java'  # Only run when Java files change
+  pull_request:
 
 permissions:
   contents: write  # Permission to push to the repository
