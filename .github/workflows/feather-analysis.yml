@@ -87,12 +87,10 @@ jobs:
           fi
 
       - name: Upload visualization as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: feather-city-visualization
           path: .visual
-          retention-days: 14
-          if-no-files-found: warn
 
       - name: Summary
         run: |
