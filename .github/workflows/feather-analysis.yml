@@ -1,7 +1,11 @@
-name: Java Analysis with Feather City
+name: Feather City Java Analysis
 on:
   workflow_dispatch:  # Allow manual triggering
   pull_request:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'src/**/*.java'  # Only run when Java files change
 
 permissions:
   contents: write  # Permission to push to the repository
@@ -12,12 +16,82 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Run Feather City Analysis
-        uses: livcristi/feather-city-action@v0.0.1-alpha3
         with:
-          input_dir: './src'
-          metrics: 'loc,cc,cloc'
-          theme: 'light'
-          output_dir: '.visual'
-          commit_results: 'true'
+          fetch-depth: 0  # This ensures all history is fetched for proper commit operations
+
+      - name: Set up Java 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'adopt'
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PMD
+        run: |
+          curl -L https://github.com/pmd/pmd/releases/download/pmd_releases%2F6.55.0/pmd-bin-6.55.0.zip -o pmd.zip
+          unzip pmd.zip -d pmd
+          chmod +x ${{ github.workspace }}/pmd/pmd-bin-6.55.0/bin/run.sh
+          echo "PMD_HOME=${{ github.workspace }}/pmd/pmd-bin-6.55.0" >> $GITHUB_ENV
+          echo "${{ github.workspace }}/pmd/pmd-bin-6.55.0/bin" >> $GITHUB_PATH
+          echo "PMD installation path: ${{ github.workspace }}/pmd/pmd-bin-6.55.0"
+          ls -la ${{ github.workspace }}/pmd/pmd-bin-6.55.0/bin
+
+      - name: Install Feather City
+        run: |
+          python -m pip install --upgrade pip
+          pip install "feather-city[java]==0.1.1b3" \
+            --extra-index-url https://pypi.org/simple/ \
+            -i https://test.pypi.org/simple/
+          # Verify installation
+          pip list | grep feather-city
+          which feather-city
+
+      - name: Debug Environment
+        run: |
+          echo "Runner OS: $RUNNER_OS"
+          echo "PMD_HOME: $PMD_HOME"
+          echo "Python version: $(python --version)"
+          echo "PATH: $PATH"
+
+      - name: Run Feather City CLI
+        run: |
+          # Determine the correct PMD path based on OS
+          PMD_SCRIPT="$PMD_HOME/bin/$([ "$RUNNER_OS" == "Windows" ] && echo "pmd.bat" || echo "run.sh")"
+          echo "Using PMD script: $PMD_SCRIPT"
+          
+          # Run feather-city with detailed output
+          set -x  # Enable command echo for debugging
+          feather-city \
+            --input './src' \
+            --language java \
+            --analyser-args --metrics 'loc,cc,cloc' --pmd-path "$PMD_SCRIPT" \
+            --output '.visual'
+          set +x  # Disable command echo
+          
+          # Check if output directory was created
+          ls -la .visual || echo "Output directory not created"
+
+      - name: Commit results to repo
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          
+          # Check if there are changes to commit
+          if [ -d ".visual" ]; then
+            git add .visual
+            if git diff --staged --quiet; then
+              echo "No changes to commit"
+            else
+              git commit -m "Add visualization via Feather City"
+              git push
+              echo "Successfully committed and pushed visualization results"
+            fi
+          else
+            echo "Warning: .visual directory not found, nothing to commit"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
