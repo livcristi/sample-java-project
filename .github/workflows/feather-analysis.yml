@@ -7,9 +7,6 @@ on:
     paths:
       - 'src/**/*.java'  # Only run when Java files change
 
-permissions:
-  contents: write  # Permission to push to the repository
-
 jobs:
   analyze:
     runs-on: ubuntu-latest
@@ -17,83 +14,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # This ensures all history is fetched for proper commit operations
+          fetch-depth: 0
 
-      - name: Set up Java 8
-        uses: actions/setup-java@v3
+      - name: Run Feather City Analysis
+        uses: livcristi/feather-city-action@v0.0.1-alpha4
         with:
-          java-version: '8'
-          distribution: 'adopt'
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install PMD
-        run: |
-          # Download and extract PMD
-          wget https://github.com/pmd/pmd/releases/download/pmd_releases%2F7.13.0/pmd-dist-7.13.0-bin.zip -O pmd.zip
-          unzip pmd.zip
-          
-          # Make the PMD script executable
-          chmod +x ${{ github.workspace }}/pmd-bin-7.13.0/bin/pmd
-          
-          # Add PMD to PATH
-          echo "${{ github.workspace }}/pmd-bin-7.13.0/bin" >> $GITHUB_PATH
-          
-          # Verify installation
-          echo "PMD installation path: ${{ github.workspace }}/pmd-bin-7.13.0/bin"
-          ls -la ${{ github.workspace }}/pmd-bin-7.13.0/bin
-
-      - name: Install Feather City
-        run: |
-          python -m pip install --upgrade pip
-          pip install "feather-city[java]==0.1.1b4" \
-            --extra-index-url https://pypi.org/simple/ \
-            -i https://test.pypi.org/simple/
-          # Verify installation
-          pip list | grep feather-city
-          which feather-city
-
-      - name: Debug Environment
-        run: |
-          echo "Runner OS: $RUNNER_OS"
-          echo "Python version: $(python --version)"
-          echo "PATH: $PATH"
-          
-          # Verify PMD is available in the path
-          which pmd || echo "PMD command not found in PATH"
-          pmd --version || echo "Unable to run pmd --version"
-
-      - name: Run Feather City CLI
-        run: |
-          # Run feather-city with detailed output
-          set -x  # Enable command echo for debugging
-          feather-city \
-            --input './src' \
-            --language java \
-            --analyser-args --metrics 'loc,cc,iss,cloc,wmc,nom,ce,ca,stat' \
-            --visualiser-args --theme 'light' --output-dir 'visual'
-          set +x  # Disable command echo
-          
-          # Check if output directory was created
-          ls -la visual || echo "Output directory not created"
-
-      - name: Upload visualization as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: feather-city-visualization
-          path: visual
-
-      - name: Summary
-        run: |
-          # Create a summary with links to the artifacts
-          echo "## Feather City Analysis Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Analysis completed successfully. You can view the results by downloading the 'feather-city-visualization' artifact." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "To view the visualization:" >> $GITHUB_STEP_SUMMARY
-          echo "1. Download the artifact" >> $GITHUB_STEP_SUMMARY
-          echo "2. Extract the zip file" >> $GITHUB_STEP_SUMMARY
-          echo "3. Open `index.html` in your browser" >> $GITHUB_STEP_SUMMARY
+          input_dir: './src'
+          metrics: 'loc,cc,iss,cloc,wmc,nom,ce,ca,stat'
+          theme: 'light'
+          output_dir: 'visual'
+          java_version: '8'
+          pmd_version: '7.13.0'
+          feather_city_version: '0.1.1b4'
