@@ -79,18 +79,12 @@ jobs:
           
           # Check if output directory was created
           ls -la visual || echo "Output directory not created"
-          
-          # If treemap output exists, show info about it
-          if [ -d ".visual/treemap_output" ]; then
-            echo "Treemap output directory found:"
-            ls -la visual/treemap_output
-          fi
 
       - name: Upload visualization as artifact
         uses: actions/upload-artifact@v4
         with:
           name: feather-city-visualization
-          path: visual/treemap_output
+          path: visual
 
       - name: Summary
         run: |
