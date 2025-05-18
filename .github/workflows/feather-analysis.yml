@@ -1,0 +1,28 @@
+name: Feather City Java Analysis
+on:
+  workflow_dispatch:  # Allow manual triggering
+  pull_request:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'src/**/*.java'  # Only run when Java files change
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Feather City Analysis
+        uses: livcristi/feather-city-action@v0.0.1-alpha6
+        with:
+          input_dir: './src'
+          metrics: 'loc,cc,iss,cloc,wmc,nom,ce,ca,stat'
+          theme: 'light'
+          output_dir: 'visual'
+          java_version: '8'
+          pmd_version: '7.13.0'
+          feather_city_version: '0.1.1b7'
