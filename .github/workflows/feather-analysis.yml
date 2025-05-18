@@ -17,7 +17,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run Feather City Analysis
-        uses: livcristi/feather-city-action@v0.0.1-alpha4
+        uses: livcristi/feather-city-action@v0.0.1-alpha5
         with:
           input_dir: './src'
           metrics: 'loc,cc,iss,cloc,wmc,nom,ce,ca,stat'
