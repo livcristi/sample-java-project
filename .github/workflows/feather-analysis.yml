@@ -25,4 +25,4 @@ jobs:
           output_dir: 'visual'
           java_version: '8'
           pmd_version: '7.13.0'
-          feather_city_version: '0.1.1b4'
+          feather_city_version: '0.1.1b7'
