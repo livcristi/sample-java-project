@@ -21,6 +21,8 @@ jobs:
         with:
           input_dir: './src'
           metrics: 'loc,cc,iss,cloc,wmc,nom,ce,ca,stat'
+          title: "My Sample Storage Service"
+          description: "This is a description for my service, it stores data on Azure"
           theme: 'light'
           output_dir: 'visual'
           java_version: '8'
