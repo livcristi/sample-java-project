@@ -20,12 +20,12 @@ jobs:
         uses: livcristi/feather-city-action/java@livcristi/other_improvements
         with:
           input_dir: './src'
-          metrics: 'loc,cc,iss,cloc,wmc,nom,ce,ca,stat'
+          metrics: 'loc,wmc,iss,cloc,cc,nom,ce,ca,stat'
           title: "My Sample Storage Service"
           project_description: "This is a description for my service, it stores object data on Azure"
-          theme: 'light'
+          theme: 'dark'
           output_dir: 'visual'
           java_version: '8'
           pmd_version: '7.14.0'
           feather_city_version: '0.1.2'
-          color_palette: "magma"
+#          color_palette: "magma"
