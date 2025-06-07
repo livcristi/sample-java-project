@@ -17,7 +17,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run Feather City Analysis
-        uses: livcristi/feather-city-action@livcristi/new-params
+        uses: livcristi/feather-city-action/java@livcristi/other_improvements
         with:
           input_dir: './src'
           metrics: 'loc,cc,iss,cloc,wmc,nom,ce,ca,stat'
@@ -26,6 +26,6 @@ jobs:
           theme: 'light'
           output_dir: 'visual'
           java_version: '8'
-          pmd_version: '7.13.0'
-          feather_city_version: '0.1.1b8'
+          pmd_version: '7.14.0'
+          feather_city_version: '0.1.2'
           color_palette: "magma"
