@@ -28,4 +28,5 @@ jobs:
           java_version: '8'
           pmd_version: '7.14.0'
           feather_city_version: '0.1.2'
-#          color_palette: "magma"
+          color_palette: "magma"
+          python_version: "3.13"
