@@ -1,0 +1,33 @@
+name: Feather City Java Analysis
+on:
+  workflow_dispatch:  # Allow manual triggering
+  pull_request:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'src/**/*.java'  # Only run when Java files change
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Feather City Analysis
+        uses: livcristi/feather-city-action/java@v0
+        with:
+          input_dir: './src'
+          metrics: 'loc,ca,ce,cloc,iss,nom,noa,stat,wmc,cc'
+          title: "My storage service"
+          project_description: "My feather-city analysis of the storage service, which stores object data in Azure"
+          exclude_directories: "exception"
+          theme: 'dark'
+          output_dir: 'visual'
+          java_version: '8'
+          pmd_version: '7.14.0'
+          feather_city_version: '0.1.3'
+          python_version: "3.13"
+          show_dependency_lines: "true"
